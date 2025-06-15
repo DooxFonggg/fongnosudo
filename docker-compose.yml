@@ -1,0 +1,62 @@
+services:
+  postgres:
+    image: postgres:13-alpine
+    container_name: fongnosudo-postgres
+    environment:
+      POSTGRES_DB: fongnosudo
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - fongnosudo-dev-network
+
+  # Backend Development Service
+  backend-dev:
+    build:
+      context: ./fongnosudo-be
+      dockerfile: Dockerfile.dev
+    container_name: fongnosudo-backend-dev
+    environment:
+      - DATABASE_URL=postgresql://postgres:123456@postgres:5432/fongnosudo
+      - JWT_SECRET_KEY=dev-secret-key
+      - FLASK_ENV=development
+      - FLASK_DEBUG=True
+      - HOST=0.0.0.0
+      - PORT=5000
+    volumes:
+      - ./fongnosudo-be:/app
+      - /app/__pycache__
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+    networks:
+      - fongnosudo-dev-network
+    restart: unless-stopped
+
+  # Frontend Development Service
+  frontend-dev:
+    build:
+      context: ./fongnosudo-fe
+      dockerfile: Dockerfile
+    container_name: fongnosudo-frontend
+    environment:
+      - VITE_API_BASE_URL=http://localhost:5000/api
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend-dev
+    networks:
+      - fongnosudo-dev-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data_dev:
+    driver: local
+
+networks:
+  fongnosudo-dev-network:
+    driver: bridge
