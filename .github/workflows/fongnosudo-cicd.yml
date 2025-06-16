@@ -30,7 +30,7 @@ jobs:
         run: |
           cd fongnosudo-fe
           cp .env.example .env
-          sudo sed -i "s|http://127.0.0.1:5000/api|$ENV|g" .env
+          sudo sed -i "s|http://backend:5000/api|$ENV|g" .env
           cat .env
           docker build -t ${{ secrets.DOCKER_IMAGE_FE }}:v${{ github.sha }} .
           docker push ${{ secrets.DOCKER_IMAGE_FE }}:v${{ github.sha }}
