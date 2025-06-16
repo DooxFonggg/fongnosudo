@@ -28,7 +28,7 @@ jobs:
         env:
           ENV_FE: ${{ secrets.ENV_FE }}
         run: |
-          cd /fongnosudo-fe
+          cd fongnosudo-fe
           cp .env.example .env
           echo "edit .env" 
           sudo sed -i "s|http://backend:5000/api|$ENV_FE|g" .env
