@@ -75,8 +75,12 @@ jobs:
             echo "sed image docker"
             sudo sed -i "s|dohoangphong/fongnosudo-fe|$FE_IMAGE|g" docker-compose.yml
             sudo sed -i "s|dohoangphong/fongnosudo-be|$BE_IMAGE|g" docker-compose.yml
+            echo "export dotenv"
             export $(grep -v '^#' .env | xargs)
+            cat .env
             echo $FRONTEND_PORT
+            echo "complate .env"
+            
             sudo docker compose up -d
             
             echo "Deploy complete"
