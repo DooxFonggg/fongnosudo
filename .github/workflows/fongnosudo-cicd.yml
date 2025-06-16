@@ -60,6 +60,7 @@ jobs:
             echo "complete connect ssh"
             sudo -i
             cd /fongnosudo
+            whoami
             echo "sed image docker"
             echo $FE_IMAGE
             echo $BE_IMAGE
