@@ -60,6 +60,9 @@ jobs:
             echo "complete connect ssh"
             sudo -i
             cd /fongnosudo
+            echo "sed image docker"
+            echo $FE_IMAGE
+            echo $BE_IMAGE
             sed -i "s|dohoangphong/fongnosudo-fe:.*|$FE_IMAGE|g" docker-compose.yml
             sed -i "s|dohoangphong/fongnosudo-be:.*|$BE_IMAGE|g" docker-compose.yml
             docker compose down
