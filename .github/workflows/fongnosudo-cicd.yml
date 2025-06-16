@@ -58,13 +58,10 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@ec2-18-212-38-149.compute-1.amazonaws.com << EOF
             echo "complete connect ssh"
+            sudo -i
             cd /fongnosudo
-
-            # Update Docker images in docker-compose.yml
             sed -i "s|dohoangphong/fongnosudo-fe:.*|$FE_IMAGE|g" docker-compose.yml
             sed -i "s|dohoangphong/fongnosudo-be:.*|$BE_IMAGE|g" docker-compose.yml
-
-            # Restart containers
             docker compose down
             export \$(grep -v '^#' .env | xargs)
             docker compose up -d
