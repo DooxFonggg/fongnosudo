@@ -17,13 +17,10 @@ Clone the project
   cd /fongnosudo/fongnosudo-fe
   cp .env.example .env
 ```
-
+Then edit .env file to match your setting.
 ```bash
   export $(grep -v '^#' .env | xargs)
 ```
-
-Then edit .env file to match your setting.
-
 ```bash
   cd /fongnosudo/scripts
   cp .env.example .env
