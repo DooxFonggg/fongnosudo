@@ -59,6 +59,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@ec2-18-212-38-149.compute-1.amazonaws.com << EOF
             echo "complete connect ssh"
+            sudo
             cd /fongnosudo
             whoami
             echo "sed image docker"
