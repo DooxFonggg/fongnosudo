@@ -28,10 +28,12 @@ jobs:
         env:
           ENV_FE: ${{ secrets.ENV_FE }}
         run: |
-          cd fongnosudo-fe
+          cd /fongnosudo-fe
           cp .env.example .env
-          sudo sed -i "s|http://backend:5000/api|$ENV|g" .env
+          echo "edit .env" 
+          sudo sed -i "s|http://backend:5000/api|$ENV_FE|g" .env
           cat .env
+          echo "complete edit dotenv" 
           docker build -t ${{ secrets.DOCKER_IMAGE_FE }}:v${{ github.sha }} .
           docker push ${{ secrets.DOCKER_IMAGE_FE }}:v${{ github.sha }}
 
