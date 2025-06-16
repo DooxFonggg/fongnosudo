@@ -66,6 +66,7 @@ jobs:
             echo $FE_IMAGE
             echo $BE_IMAGE
             sudo docker compose down
+            sudo docker system prune -a
             rm docker-compose.yml
             cp docker-compose-copy.yml docker-compose.yml
             sudo sed -i "s|dohoangphong/fongnosudo-fe|$FE_IMAGE|g" docker-compose.yml
