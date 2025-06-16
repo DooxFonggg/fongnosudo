@@ -29,7 +29,6 @@ jobs:
           ENV_FE: ${{ secrets.ENV_FE }}
         run: |
           cd fongnosudo-fe
-          rm .env
           cp .env.example .env
           sudo sed -i "s|http://127.0.0.1:5000/api|$ENV|g" .env
           cat .env
