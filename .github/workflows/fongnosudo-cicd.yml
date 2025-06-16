@@ -70,7 +70,7 @@ jobs:
             cp docker-compose-copy.yml docker-compose.yml
             sudo sed -i "s|dohoangphong/fongnosudo-fe|$FE_IMAGE|g" docker-compose.yml
             sudo sed -i "s|dohoangphong/fongnosudo-be|$BE_IMAGE|g" docker-compose.yml
-            sudo export \$(grep -v '^#' .env | xargs)
+            export $(grep -v '^#' .env | xargs)
             echo $FRONTEND_PORT
             sudo docker compose up -d
             
