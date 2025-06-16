@@ -11,14 +11,14 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - fongnosudo-dev-network
+      - fongnosudo-network
 
   # Backend Development Service
-  backend-dev:
+  backend:
     build:
       context: ./fongnosudo-be
       dockerfile: Dockerfile.dev
-    container_name: fongnosudo-backend-dev
+    container_name: fongnosudo-backend
     environment:
       - DATABASE_URL=postgresql://postgres:123456@postgres:5432/fongnosudo
       - JWT_SECRET_KEY=dev-secret-key
@@ -34,11 +34,11 @@ services:
     depends_on:
       - postgres
     networks:
-      - fongnosudo-dev-network
+      - fongnosudo-network
     restart: unless-stopped
 
   # Frontend Development Service
-  frontend-dev:
+  frontend:
     build:
       context: ./fongnosudo-fe
       dockerfile: Dockerfile
@@ -48,9 +48,9 @@ services:
     ports:
       - "5173:5173"
     depends_on:
-      - backend-dev
+      - backend
     networks:
-      - fongnosudo-dev-network
+      - fongnosudo-network
     restart: unless-stopped
 
 volumes:
@@ -58,5 +58,5 @@ volumes:
     driver: local
 
 networks:
-  fongnosudo-dev-network:
+  fongnosudo-network:
     driver: bridge

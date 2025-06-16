@@ -6,7 +6,7 @@ echo "🚀 Starting Fongnosudo Blog..."
 docker-compose up -d
 
 echo "✅ Services started!"
-echo "📊 Backend: http://localhost:5000"
-echo "🌐 Frontend: http://localhost"
+echo "📊 Backend: http://127.0.0.1/api/"
+echo "🌐 Frontend: http://127.0.0.1/"
 echo ""
 echo "Run 'docker-compose logs -f' to see logs"
