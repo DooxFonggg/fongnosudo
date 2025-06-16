@@ -29,8 +29,10 @@ jobs:
           ENV_FE: ${{ secrets.ENV_FE }}
         run: |
           cd fongnosudo-fe
+          rm .env
           cp .env.example .env
-          sed -i "s|http://127.0.0.1:5000/api|$ENV|g" .env
+          sudo sed -i "s|http://127.0.0.1:5000/api|$ENV|g" .env
+          cat .env
           docker build -t ${{ secrets.DOCKER_IMAGE_FE }}:v${{ github.sha }} .
           docker push ${{ secrets.DOCKER_IMAGE_FE }}:v${{ github.sha }}
 
@@ -64,11 +66,14 @@ jobs:
             echo "sed image docker"
             echo $FE_IMAGE
             echo $BE_IMAGE
-            sudo sed -i "s|dohoangphong/fongnosudo-fe:.*|\"$FE_IMAGE\"|g" docker-compose.yml
-            sudo sed -i "s|dohoangphong/fongnosudo-be:.*|$BE_IMAGE|g" docker-compose.yml
             sudo docker compose down
+            rm docker-compose.yml
+            cp docker-compose-copy.yml docker-compose.yml
+            sudo sed -i "s|dohoangphong/fongnosudo-fe|$FE_IMAGE|g" docker-compose.yml
+            sudo sed -i "s|dohoangphong/fongnosudo-be|$BE_IMAGE|g" docker-compose.yml
             sudo export \$(grep -v '^#' .env | xargs)
+            echo $FRONTEND_PORT
             sudo docker compose up -d
-
+            
             echo "Deploy complete"
           EOF
