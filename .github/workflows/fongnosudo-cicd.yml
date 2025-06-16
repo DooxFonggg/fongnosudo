@@ -93,8 +93,8 @@ jobs:
          sudo docker compose down
          sudo docker system prune -a -f
 
-         rm docker-compose.yml
-         cp docker-compose-copy.yml docker-compose.yml
+         sudo rm docker-compose.yml
+         sudo cp docker-compose-copy.yml docker-compose.yml
 
          sudo sed -i "s|dohoangphong/fongnosudo-fe.*|image: \$FE_IMAGE|g" docker-compose.yml
          sudo sed -i "s|dohoangphong/fongnosudo-be.*|image: \$BE_IMAGE|g" docker-compose.yml
