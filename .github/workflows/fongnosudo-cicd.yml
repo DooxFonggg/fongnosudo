@@ -63,8 +63,8 @@ jobs:
             echo "sed image docker"
             echo $FE_IMAGE
             echo $BE_IMAGE
-            sed -i "s|dohoangphong/fongnosudo-fe:.*|$FE_IMAGE|g" docker-compose.yml
-            sed -i "s|dohoangphong/fongnosudo-be:.*|$BE_IMAGE|g" docker-compose.yml
+            sudo sed -i "s|dohoangphong/fongnosudo-fe:.*|\"$FE_IMAGE\"|g" docker-compose.yml
+            sudo sed -i "s|dohoangphong/fongnosudo-be:.*|$BE_IMAGE|g" docker-compose.yml
             docker compose down
             export \$(grep -v '^#' .env | xargs)
             docker compose up -d
