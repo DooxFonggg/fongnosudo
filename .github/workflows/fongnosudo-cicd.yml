@@ -52,28 +52,56 @@ jobs:
           echo "${{ secrets.SSH_KEYPEM }}" > key.pem
           chmod 600 key.pem
 
+      # - name: Deploy fongnosudo
+      #   env:
+      #     FE_IMAGE: ${{ secrets.DOCKER_IMAGE_FE }}:v${{ github.sha }}
+      #     BE_IMAGE: ${{ secrets.DOCKER_IMAGE_BE }}:v${{ github.sha }}
+      #   run: |
+      #     ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@ec2-18-212-38-149.compute-1.amazonaws.com << EOF
+      #       echo "complete connect ssh"
+      #       sudo
+      #       cd /fongnosudo
+      #       whoami
+      #       echo "sed image docker"
+      #       echo $FE_IMAGE
+      #       echo $BE_IMAGE
+      #       sudo docker compose down
+      #       sudo docker system prune -a -f
+      #       rm docker-compose.yml
+      #       cp docker-compose-copy.yml docker-compose.yml
+      #       sudo sed -i "s|dohoangphong/fongnosudo-fe|$FE_IMAGE|g" docker-compose.yml
+      #       sudo sed -i "s|dohoangphong/fongnosudo-be|$BE_IMAGE|g" docker-compose.yml
+      #       export $(grep -v '^#' .env | xargs)
+      #       echo $FRONTEND_PORT
+      #       sudo docker compose up -d
+            
+      #       echo "Deploy complete"
+      #     EOF
       - name: Deploy fongnosudo
         env:
-          FE_IMAGE: ${{ secrets.DOCKER_IMAGE_FE }}:v${{ github.sha }}
-          BE_IMAGE: ${{ secrets.DOCKER_IMAGE_BE }}:v${{ github.sha }}
+         FE_IMAGE: "dohoangphong/fongnosudo-fe:v${{ github.sha }}"
+         BE_IMAGE: "dohoangphong/fongnosudo-be:v${{ github.sha }}"
         run: |
-          ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@ec2-18-212-38-149.compute-1.amazonaws.com << EOF
-            echo "complete connect ssh"
-            sudo
-            cd /fongnosudo
-            whoami
-            echo "sed image docker"
-            echo $FE_IMAGE
-            echo $BE_IMAGE
-            sudo docker compose down
-            sudo docker system prune -a -f
-            rm docker-compose.yml
-            cp docker-compose-copy.yml docker-compose.yml
-            sudo sed -i "s|dohoangphong/fongnosudo-fe|$FE_IMAGE|g" docker-compose.yml
-            sudo sed -i "s|dohoangphong/fongnosudo-be|$BE_IMAGE|g" docker-compose.yml
-            export $(grep -v '^#' .env | xargs)
-            echo $FRONTEND_PORT
-            sudo docker compose up -d
-            
-            echo "Deploy complete"
-          EOF
+         ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@ec2-18-212-38-149.compute-1.amazonaws.com << EOF
+         export FE_IMAGE="${FE_IMAGE}"
+         export BE_IMAGE="${BE_IMAGE}"
+         echo "FE_IMAGE = \$FE_IMAGE"
+         echo "BE_IMAGE = \$BE_IMAGE"
+
+         cd /fongnosudo
+
+         sudo docker compose down
+         sudo docker system prune -a -f
+
+         rm docker-compose.yml
+         cp docker-compose-copy.yml docker-compose.yml
+
+         sudo sed -i "s|dohoangphong/fongnosudo-fe.*|image: \$FE_IMAGE|g" docker-compose.yml
+         sudo sed -i "s|dohoangphong/fongnosudo-be.*|image: \$BE_IMAGE|g" docker-compose.yml
+
+         export \$(grep -v '^#' .env | xargs)
+
+         sudo docker compose up -d
+         echo "✅ Deploy done"
+         EOF
+
