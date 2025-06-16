@@ -3,58 +3,80 @@ services:
     image: postgres:13-alpine
     container_name: fongnosudo-postgres
     environment:
-      POSTGRES_DB: fongnosudo
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_fongnosudo:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     networks:
       - fongnosudo-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
   # Backend Development Service
   backend:
     build:
-      context: ./fongnosudo-be
-      dockerfile: Dockerfile.dev
+      context: ../fongnosudo-be
+      dockerfile: Dockerfile
+    image: dohoangphong/fongnosudo-backend:${BACKEND_VERSION:-latest}
     container_name: fongnosudo-backend
     environment:
-      - DATABASE_URL=postgresql://postgres:123456@postgres:5432/fongnosudo
-      - JWT_SECRET_KEY=dev-secret-key
-      - FLASK_ENV=development
-      - FLASK_DEBUG=True
-      - HOST=0.0.0.0
-      - PORT=5000
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - FLASK_ENV=${FLASK_ENV:-development}
+      - USER_ADMIN=${USER_ADMIN:-admin}
+      - USER_ADMIN_PASSWORD=${USER_ADMIN_PASSWORD:-admin_password}
+      # - FLASK_DEBUG=True
+      # - HOST=${BACKEND_HOST:-0.0.0.0}
+      # - PORT=${BACKEND_PORT:-5000}
     volumes:
-      - ./fongnosudo-be:/app
-      - /app/__pycache__
+      - ../fongnosudo-be/uploads:/app/uploads
     ports:
-      - "5000:5000"
+      - "${BACKEND_PORT:-5000}:${BACKEND_PORT:-5000}"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - fongnosudo-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:${BACKEND_PORT:-5000}/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # Frontend Development Service
   frontend:
     build:
-      context: ./fongnosudo-fe
+      context: ../fongnosudo-fe
       dockerfile: Dockerfile
+    image: dohoangphong/fongnosudo-frontend:${FRONTEND_VERSION:-latest}
     container_name: fongnosudo-frontend
-    environment:
-      - VITE_API_BASE_URL=http://localhost:5000/api
+    # environment:
+    #   - VITE_API_BASE_URL=${VITE_API_BASE_URL}
     ports:
-      - "5173:5173"
+      - "${FRONTEND_PORT:-3000}:80"
     depends_on:
       - backend
     networks:
       - fongnosudo-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
-  postgres_data_dev:
+  postgres_data_fongnosudo:
     driver: local
 
 networks:
