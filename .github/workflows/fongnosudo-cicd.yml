@@ -54,8 +54,8 @@ jobs:
 
       - name: Deploy fongnosudo
         env:
-          FE_IMAGE: ${{ secrets.DOCKER_IMAGE_FE }}:v${{ github.sha }}
-          BE_IMAGE: ${{ secrets.DOCKER_IMAGE_BE }}:v${{ github.sha }}
+          FE_IMAGE: "${{ secrets.DOCKER_IMAGE_FE }}:v${{ github.sha }}"
+          BE_IMAGE: "${{ secrets.DOCKER_IMAGE_BE }}:v${{ github.sha }}"
         run: |
           ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@ec2-18-212-38-149.compute-1.amazonaws.com << EOF
             echo "complete connect ssh"
