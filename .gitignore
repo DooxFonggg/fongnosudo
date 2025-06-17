@@ -26,3 +26,4 @@ bin-release/
 .vscode/
 uploads/
 __pycache__
+lab.conf

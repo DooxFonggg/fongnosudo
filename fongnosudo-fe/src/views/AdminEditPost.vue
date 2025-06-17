@@ -304,6 +304,7 @@ export default {
   height: 16px;
   margin: 0;
   cursor: pointer;
+  accent-color: var(--primary-color);
 }
 
 .checkbox label {
@@ -317,7 +318,7 @@ export default {
 }
 
 .checkbox input[type="checkbox"]:checked+label {
-  color: #007bff;
+  color: var(--primary-color);
   font-weight: 600;
 }
 
