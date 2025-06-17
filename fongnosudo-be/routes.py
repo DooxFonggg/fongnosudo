@@ -177,7 +177,9 @@ def update_post(post_slug):
     post = Post.query.filter_by(slug=post_slug).first_or_404()
 
     logger.info(f"atuthor id: { post.author_id}")
-    if post.author_id != current_user_id: 
+    current_user_int = int(current_user_id)
+    post_author_int = int(post.author_id)
+    if post_author_int != current_user_int: 
         return jsonify({"msg": "Unauthorized to update this post"}), 403
 
     data = request.get_json()
