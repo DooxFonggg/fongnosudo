@@ -116,8 +116,18 @@ def create_post():
     # For now, we assume any logged in user can create.
     
     data = request.get_json()
+    print("Received data:", data)
+
+    if not data:
+            return jsonify({"msg": "No data provided"}), 400
+    
     title = data.get('title')
+    if not title or not isinstance(title, str):
+            return jsonify({"msg": "Title must be a non-empty string"}), 422
+    
     content = data.get('content')
+    if not content or not isinstance(content, str):
+            return jsonify({"msg": "Content must be a non-empty string"}), 422
     image_url = data.get('image_url')
     
     if not title or not content:
@@ -128,10 +138,11 @@ def create_post():
         # Handle duplicate slug: append a unique identifier
         slug = f"{slug}-{str(uuid.uuid4())[:8]}"
 
-    new_post = Post(title=title, slug=slug, content=content, image_url=image_url, author_id=current_user_id)
+    new_post = Post(title=title.strip(), slug=slug, content=content, image_url=image_url, author_id=current_user_id)
     db.session.add(new_post)
     db.session.commit()
     return jsonify({"msg": "Post created", "id": new_post.id, "slug": new_post.slug}), 201
+
 
 @posts_bp.route('/posts/<string:post_slug>', methods=['PUT'])
 @jwt_required()
