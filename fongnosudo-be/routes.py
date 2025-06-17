@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, Post, User  # Đổi từ .models thành models
 import os
 import uuid
+import logging
 
 posts_bp = Blueprint('posts', __name__)
 
@@ -108,42 +109,65 @@ def get_post(slug):
     }
     return jsonify(post_data), 200
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 @posts_bp.route('/posts', methods=['POST'])
 @jwt_required()
 def create_post():
+    logger.info("--- Bắt đầu xử lý yêu cầu tạo bài viết mới ---")
+
     current_user_id = get_jwt_identity()
-    # Check if current_user_id is an admin (you might add a 'is_admin' field to User model)
-    # For now, we assume any logged in user can create.
-    
-    data = request.get_json()
-    print("Received data:", data)
+    logger.info(f"Người dùng hiện tại (ID): {current_user_id}")
+
+    try:
+        data = request.get_json()
+        logger.info(f"Dữ liệu JSON nhận được: {data}")
+    except Exception as e:
+        logger.error(f"Lỗi khi parse JSON từ request: {e}")
+        return jsonify({"msg": "Invalid JSON format"}), 400
 
     if not data:
-            return jsonify({"msg": "No data provided"}), 400
-    
+        logger.warning("Không có dữ liệu JSON nào được cung cấp trong yêu cầu.")
+        return jsonify({"msg": "No data provided"}), 400
+
     title = data.get('title')
+    logger.info(f"Giá trị của 'title': {title}, kiểu dữ liệu: {type(title)}")
     if not title or not isinstance(title, str):
-            return jsonify({"msg": "Title must be a non-empty string"}), 422
-    
+        logger.error(f"Lỗi xác thực: 'title' phải là một chuỗi không rỗng. Giá trị hiện tại: {title}, kiểu: {type(title)}")
+        return jsonify({"msg": "Title must be a non-empty string"}), 422
+    logger.info(f"Giá trị 'title' hợp lệ: '{title}'")
+
     content = data.get('content')
+    logger.info(f"Giá trị của 'content': {content}, kiểu dữ liệu: {type(content)}")
     if not content or not isinstance(content, str):
-            return jsonify({"msg": "Content must be a non-empty string"}), 422
+        logger.error(f"Lỗi xác thực: 'content' phải là một chuỗi không rỗng. Giá trị hiện tại: {content}, kiểu: {type(content)}")
+        return jsonify({"msg": "Content must be a non-empty string"}), 422
+    logger.info(f"Giá trị 'content' hợp lệ: '{content}'")
+
     image_url = data.get('image_url')
+    logger.info(f"Giá trị của 'image_url': {image_url}, kiểu dữ liệu: {type(image_url)}")
     
-    if not title or not content:
-        return jsonify({"msg": "Title and content are required"}), 400
-
     slug = generate_slug(title)
-    if Post.query.filter_by(slug=slug).first():
-        # Handle duplicate slug: append a unique identifier
+    logger.info(f"Slug ban đầu được tạo: {slug}")
+
+    existing_post = Post.query.filter_by(slug=slug).first()
+    if existing_post:
+        original_slug = slug
         slug = f"{slug}-{str(uuid.uuid4())[:8]}"
+        logger.warning(f"Slug '{original_slug}' đã tồn tại. Tạo slug mới: '{slug}'")
 
-    new_post = Post(title=title.strip(), slug=slug, content=content, image_url=image_url, author_id=current_user_id)
-    db.session.add(new_post)
-    db.session.commit()
-    return jsonify({"msg": "Post created", "id": new_post.id, "slug": new_post.slug}), 201
-
-
+    try:
+        new_post = Post(title=title.strip(), slug=slug, content=content, image_url=image_url, author_id=current_user_id)
+        db.session.add(new_post)
+        db.session.commit()
+        logger.info(f"Bài viết mới (ID: {new_post.id}, Slug: {new_post.slug}) đã được tạo thành công.")
+        return jsonify({"msg": "Post created", "id": new_post.id, "slug": new_post.slug}), 201
+    except Exception as e:
+        db.session.rollback()
+        logger.exception(f"Lỗi khi lưu bài viết vào cơ sở dữ liệu: {e}")
+        return jsonify({"msg": f"Failed to create post due to database error: {str(e)}"}), 500
+    
 @posts_bp.route('/posts/<string:post_slug>', methods=['PUT'])
 @jwt_required()
 def update_post(post_slug):
