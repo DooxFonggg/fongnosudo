@@ -194,22 +194,72 @@ def update_post(post_slug):
     db.session.commit()
     return jsonify({"msg": "Post updated"}), 200
 
+# @posts_bp.route('/posts/<int:post_id>', methods=['DELETE'])
+# @jwt_required()
+# def delete_post(post_id):
+#     current_user_id = get_jwt_identity()
+#     post = Post.query.get_or_404(post_id)
+
+#     # Ensure only the author or a super admin can delete
+#     logger.info(f"Người dùng hiện tại (ID): {current_user_id}")
+#     logger.info(f"ID bài viết cần xóa: {post_id}, ID tác giả bài viết: {post.author_id}")
+#     if post.author_id != current_user_id: # Add check for is_admin if applicable
+#         return jsonify({"msg": "Unauthorized to delete this post"}), 403
+
+#     db.session.delete(post)
+#     db.session.commit()
+#     return jsonify({"msg": "Post deleted"}), 204
 @posts_bp.route('/posts/<int:post_id>', methods=['DELETE'])
 @jwt_required()
 def delete_post(post_id):
-    current_user_id = get_jwt_identity()
-    post = Post.query.get_or_404(post_id)
-
-    # Ensure only the author or a super admin can delete
-    logger.info(f"Người dùng hiện tại (ID): {current_user_id}")
-    logger.info(f"ID bài viết cần xóa: {post_id}, ID tác giả bài viết: {post.author_id}")
-    if post.author_id != current_user_id: # Add check for is_admin if applicable
-        return jsonify({"msg": "Unauthorized to delete this post"}), 403
-
-    db.session.delete(post)
-    db.session.commit()
-    return jsonify({"msg": "Post deleted"}), 204
-
+    try:
+        current_user_id = get_jwt_identity()
+        logger.info(f"Người dùng hiện tại (ID): {current_user_id}")
+        
+        post = Post.query.get(post_id)
+        if not post:
+            logger.warning(f"Post {post_id} không tồn tại")
+            return jsonify({"msg": "Bài viết không tồn tại"}), 404
+        
+        logger.info(f"ID bài viết cần xóa: {post_id}, ID tác giả bài viết: {post.author_id}")
+        
+        # DEBUG
+        logger.info(f"🔍 current_user_id: {current_user_id} (type: {type(current_user_id)})")
+        logger.info(f"🔍 post.author_id: {post.author_id} (type: {type(post.author_id)})")
+        logger.info(f"🔍 Raw comparison: {current_user_id} == {post.author_id}")
+        logger.info(f"🔍 Comparison result: {current_user_id == post.author_id}")
+        
+        # Convert both
+        current_user_int = int(current_user_id)
+        post_author_int = int(post.author_id)
+        
+        logger.info(f"🔍 After int conversion:")
+        logger.info(f"🔍 current_user_int: {current_user_int}")
+        logger.info(f"🔍 post_author_int: {post_author_int}")
+        logger.info(f"🔍 Int comparison: {current_user_int == post_author_int}")
+        
+    
+        if post_author_int != current_user_int:
+            logger.warning(f"❌ Authorization FAILED after int conversion")
+            logger.warning(f"❌ {post_author_int} != {current_user_int}")
+            return jsonify({"msg": "Unauthorized to delete this post"}), 403
+        
+        logger.info(f"✅ Authorization SUCCESS - proceeding with delete")
+        
+        
+        db.session.delete(post)
+        db.session.commit()
+        
+        logger.info(f"✅ Post {post_id} deleted successfully")
+        return jsonify({"msg": "Bài viết đã được xóa thành công"}), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"💥 Exception in delete_post: {str(e)}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        return jsonify({"msg": f"Server error: {str(e)}"}), 500
+    
 @posts_bp.route('/upload-image', methods=['POST'])
 @jwt_required()
 def upload_image():
