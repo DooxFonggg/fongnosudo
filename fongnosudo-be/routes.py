@@ -168,13 +168,15 @@ def create_post():
         logger.exception(f"Lỗi khi lưu bài viết vào cơ sở dữ liệu: {e}")
         return jsonify({"msg": f"Failed to create post due to database error: {str(e)}"}), 500
     
+    
 @posts_bp.route('/posts/<string:post_slug>', methods=['PUT'])
 @jwt_required()
 def update_post(post_slug):
     current_user_id = get_jwt_identity()
+    logger.info(f"Người dùng hiện tại (ID): {current_user_id}")
     post = Post.query.filter_by(slug=post_slug).first_or_404()
 
-    
+    logger.info(f"atuthor id: { post.author_id}")
     if post.author_id != current_user_id: 
         return jsonify({"msg": "Unauthorized to update this post"}), 403
 
@@ -199,6 +201,8 @@ def delete_post(post_id):
     post = Post.query.get_or_404(post_id)
 
     # Ensure only the author or a super admin can delete
+    logger.info(f"Người dùng hiện tại (ID): {current_user_id}")
+    logger.info(f"ID bài viết cần xóa: {post_id}, ID tác giả bài viết: {post.author_id}")
     if post.author_id != current_user_id: # Add check for is_admin if applicable
         return jsonify({"msg": "Unauthorized to delete this post"}), 403
 

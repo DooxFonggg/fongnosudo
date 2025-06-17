@@ -14,13 +14,26 @@ def create_app():
     # Initialize extensions
     db.init_app(app)
     jwt = JWTManager(app)
-    CORS(app)
+    
+    CORS(app, 
+        #  origins=["*"],  # Tạm thời cho phép tất cả để test
+         supports_credentials=True,
+         allow_headers=[
+             "Content-Type", 
+             "Authorization", 
+             "Access-Control-Allow-Headers",
+             "Access-Control-Allow-Origin",
+             "Access-Control-Allow-Methods"
+         ],
+         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # Thêm OPTIONS
+         expose_headers=["Content-Type", "Authorization"]
+    )
+    
 
     # Register blueprints
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(posts_bp, url_prefix='/api')
-
-    # Serve uploaded images
+    
     @app.route('/uploads/<path:filename>')
     def uploaded_file(filename):
         return send_from_directory(UPLOAD_FOLDER, filename)

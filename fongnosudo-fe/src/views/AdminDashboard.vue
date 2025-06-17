@@ -67,7 +67,16 @@ export default {
           fetchAdminPosts(); // Refresh list
         } catch (error) {
           console.error('Failed to delete post:', error);
-          alert('Không thể xóa bài viết. Vui lòng thử lại.');
+
+          // Alert ra status code nếu có response
+          if (error.response) {
+            alert(`Failed to delete post. Status: ${error.response.status}`);
+          } else if (error.request) {
+            alert('Failed to delete post: No response from server');
+          } else {
+            alert(`Failed to delete post: ${error.message}`);
+          }
+
           if (error.response && (error.response.status === 401 || error.response.status === 403)) {
             localStorage.removeItem('access_token');
             router.push('/admin/login');
