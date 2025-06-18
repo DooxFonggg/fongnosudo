@@ -492,4 +492,16 @@ export default {
     font-size: 1rem;
   }
 }
+
+.post-content :deep(h1),
+.post-content :deep(h2),
+.post-content :deep(h3),
+.post-content :deep(h4) {
+  color: var(--background-color-dark);
+  margin-top: 0;
+  /* Thay đổi từ 1.5em thành 0 */
+  margin-bottom: 0;
+  /* Thay đổi từ 0.75em thành 0 */
+  font-weight: 600;
+}
 </style>
