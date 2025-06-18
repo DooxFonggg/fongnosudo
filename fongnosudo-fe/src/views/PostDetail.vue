@@ -53,7 +53,17 @@ export default {
         copyButton.className = 'copy-button';
         copyButton.textContent = 'Copy';
         copyButton.onclick = () => {
-          navigator.clipboard.writeText(block.textContent)
+          // Tạo một bản sao của block để xử lý
+          const blockClone = block.cloneNode(true);
+
+          // Xóa tất cả các nút (copy, toggle) khỏi bản sao
+          const buttons = blockClone.querySelectorAll('.code-header, .copy-button, .toggle-button');
+          buttons.forEach(btn => btn.remove());
+
+          // Lấy text thuần túy từ bản sao đã xóa nút
+          const codeText = blockClone.textContent || blockClone.innerText;
+
+          navigator.clipboard.writeText(codeText)
             .then(() => {
               copyButton.textContent = 'Copied!';
               setTimeout(() => { copyButton.textContent = 'Copy'; }, 1500);
