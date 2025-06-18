@@ -36,7 +36,7 @@ export default {
       }
 
       const codeBlocks = postContentRef.value.querySelectorAll('pre.ql-syntax');
-      const MAX_LINES = 20; // Giới hạn số dòng hiển thị ban đầu
+      const MAX_LINES = 7; // Giới hạn số dòng hiển thị ban đầu
 
       codeBlocks.forEach(block => {
         // Đảm bảo không xử lý block đã được thêm nút rồi để tránh trùng lặp
