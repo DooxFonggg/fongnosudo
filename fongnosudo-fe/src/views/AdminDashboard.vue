@@ -10,7 +10,10 @@
     <div class="posts-list">
       <div v-for="post in adminPosts" :key="post.id" class="post-item">
         <div class="post-info">
-          <h3>{{ post.title }}</h3>
+          <!-- <h3>{{ post.title }}</h3> -->
+          <router-link :to="`/blog/${post.slug}`" class="post-title-link">
+            <h3>{{ post.title }}</h3>
+          </router-link>
           <p class="post-date">Ngày đăng: {{ new Date(post.created_at).toLocaleDateString() }}</p>
         </div>
         <div class="post-actions">
@@ -252,5 +255,15 @@ export default {
   .dashboard-actions {
     justify-content: center;
   }
+}
+
+.post-title-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.post-title-link:hover h3 {
+  color: var(--primary-color);
+  transition: color 0.3s ease;
 }
 </style>

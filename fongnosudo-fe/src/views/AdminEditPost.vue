@@ -343,4 +343,45 @@ export default {
     /* 1 checkbox mỗi hàng */
   }
 }
+
+.editor-container :deep(.ql-container) {
+  height: auto;
+  min-height: 400px;
+  max-height: 60vh;
+  /* Giới hạn chiều cao tối đa là 60% viewport */
+  overflow-y: auto;
+  /* Cho phép scroll dọc */
+}
+
+.editor-container :deep(.ql-editor) {
+  height: auto;
+  min-height: 380px;
+  /* Chiều cao tối thiểu */
+  max-height: calc(60vh - 20px);
+  /* Trừ đi padding */
+  overflow-y: auto;
+  /* Cho phép scroll trong editor */
+  padding: 12px 15px;
+}
+
+/* Đảm bảo toolbar luôn cố định ở trên */
+.editor-container :deep(.ql-toolbar) {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: white;
+  border-bottom: 1px solid #ccc;
+}
+
+/* Alternative - nếu muốn editor tự động mở rộng */
+.editor-container :deep(.ql-container.auto-height) {
+  height: auto;
+  max-height: none;
+}
+
+.editor-container :deep(.ql-editor.auto-height) {
+  height: auto;
+  min-height: 200px;
+  max-height: none;
+}
 </style>
